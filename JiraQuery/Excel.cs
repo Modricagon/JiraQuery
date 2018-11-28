@@ -1,11 +1,13 @@
 ﻿using Atlassian.Jira;
 using HelperClasses;
+using JiraQuery.Domain;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,13 +34,26 @@ namespace JiraQuery
                     Log.LogMessage("Clearing Values for Worksheet: " + strWorksheetName);
                 }
 
-                //ws.TabColor = Color.Yellow;
+                int cols = ws.Dimension?.Columns ?? dataTable.Columns.Count;
+
+                object[] columns = dataTable.Rows[0].ItemArray;
+
                 ws.Cells["A1"].LoadFromDataTable(dataTable, true);
+
+
+
+                for (int x = 1; x <= columns.Count(); x++)
+                {
+                    if (Config.Dates.Contains(ws.Cells[1, x].Value))
+                    {
+                        ws.Column(x).Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                    }
+                }
+
 
                 Log.LogMessage("Added data to Worksheet: " + strWorksheetName);
 
                 // format header cells
-                int cols = ws.Dimension?.Columns ?? dataTable.Columns.Count;
                 using (var range = ws.Cells[1, 1, 1, cols])
                 {
                     Log.LogMessage("Formating Header Cells for Worksheet: " + strWorksheetName);
@@ -46,7 +61,6 @@ namespace JiraQuery
                     range.Style.Fill.PatternType = ExcelFillStyle.Solid;
                     range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
                     range.Style.Font.Color.SetColor(Color.White);
-
                 }
 
                 // Create autofilter for the range of cells
@@ -69,7 +83,7 @@ namespace JiraQuery
             try
             {
                 string strFileName = Path.Combine(sPath, sFileName);
-                DataTable dtSummary = Helper.ToDataTableWithNulls(issues);
+                DataTable dtSummary = Helper.ToDataTableWithNulls(issues, Config.headerIgnore);
 
                 FileInfo excelFile = new FileInfo(strFileName);
 
@@ -89,7 +103,7 @@ namespace JiraQuery
                     Log.LogMessage("Generating Summary Worksheet");
                     sb.AppendLine("Generating Summary Worksheet");
                     //Application.DoEvents();
-                    GenerateWorksheet(worksheets, dtSummary, "Summary");
+                    GenerateWorksheet(worksheets, dtSummary, "Query");
                     package.Save();
                 }
                 Log.LogMessage("Created File: " + strFileName);

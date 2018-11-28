@@ -75,8 +75,7 @@ namespace JiraQuery
                         index++;
                         Log.LogMessage(index + ".\t" + issue.Type.Name);
                         returnIssues.Add(issue);
-                        //Log.LogMessage(issue.CustomFields.FirstOrDefault(c => c.Name == "Blocked By")?.Values.FirstOrDefault() ?? "nope");
-                        //Log.LogMessage(issue.CustomFields.ToList().FirstOrDefault().Name);
+                        //Log.LogMessage(issue.CustomFields.Where(c => c.Name == "Created")?.First().Values.FirstOrDefault() ?? "nope");
                         output = true;
                     }
                 }

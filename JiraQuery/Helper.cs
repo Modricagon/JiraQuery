@@ -1,4 +1,5 @@
 ﻿using Atlassian.Jira;
+using JiraQuery.Domain;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -90,12 +91,15 @@ namespace HelperClasses
                             if (!table.Columns.Contains(data[x].CustomFields.ElementAt(y).Name))
                             {
                                 string fieldName = data[x].CustomFields.ElementAt(y).Name;
-                                customfieldNames.Add(fieldName);
-                                JiraQuery.Log.LogMessage("Custom Field Added: " + fieldName);
-                                table.Columns.Add(fieldName, Nullable.GetUnderlyingType(fieldName.GetType()) ?? fieldName.GetType());
-                                table.Columns[numProps].Caption = fieldName != "" ? fieldName.Replace("_", " ") : fieldName;
-                                numCustomProps++;
-                                numProps++;
+                                if (!ignore.Contains(fieldName))
+                                {
+                                    customfieldNames.Add(fieldName);
+                                    JiraQuery.Log.LogMessage("Custom Field Added: " + fieldName);
+                                    table.Columns.Add(fieldName, Nullable.GetUnderlyingType(fieldName.GetType()) ?? fieldName.GetType());
+                                    table.Columns[numProps].Caption = fieldName != "" ? fieldName.Replace("_", " ") : fieldName;
+                                    numCustomProps++;
+                                    numProps++;
+                                }
                             }
                         }
                     }
@@ -109,7 +113,7 @@ namespace HelperClasses
                 {
                     if (!ignore.Contains(props[i].Name) && props[i].Name != "CustomFields")
                     {
-                        values[numProps] = props[i].GetValue(item) ?? DBNull.Value;
+                        values[numProps] = props[i].GetValue(item).ToString();
                         numProps++;
                     }
                     if (!ignore.Contains(props[i].Name) && props[i].Name == "CustomFields")
@@ -121,10 +125,12 @@ namespace HelperClasses
                             {
                                 continue;
                             }
-                            if (customfieldNames.ElementAt(x) == (item.CustomFields.ElementAtOrDefault(index).Name))
-                            {
 
-                                values[numProps] = item.CustomFields.ElementAt(index).Values.First();
+                            string customfieldName = customfieldNames.ElementAt(x);
+
+                            if (customfieldName == (item.CustomFields.ElementAtOrDefault(index).Name))
+                            {
+                                values[numProps] = FormatHelper.Format(customfieldName ,item.CustomFields.ElementAt(index).Values.First());
                                 index++;
                             }
                             else
@@ -142,6 +148,5 @@ namespace HelperClasses
             }
             return table;
         }
-
     }
 }
