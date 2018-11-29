@@ -66,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JiraQuery.Domain\JiraQuery.Domain.csproj">
-      <Project>{62f461bf-9159-4e28-b80a-316028b82ef0}</Project>
+      <Project>{282c16ed-2944-40e9-9028-7a89ba093367}</Project>
       <Name>JiraQuery.Domain</Name>
     </ProjectReference>
   </ItemGroup>

@@ -10,6 +10,7 @@ using RestSharp;
 using Newtonsoft.Json;
 using Atlassian.Jira.Linq;
 using OfficeOpenXml;
+using JiraQuery.Domain;
 
 namespace JiraQuery
 {
@@ -57,7 +58,7 @@ namespace JiraQuery
             int index = 0;
             int batchCount = 0;
 
-            string query = "project = JEP";
+            string query = Config.query;
 
             List<Issue> returnIssues = new List<Issue>();
 

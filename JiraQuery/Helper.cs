@@ -113,7 +113,7 @@ namespace HelperClasses
                 {
                     if (!ignore.Contains(props[i].Name) && props[i].Name != "CustomFields")
                     {
-                        values[numProps] = props[i].GetValue(item).ToString();
+                        values[numProps] = props[i].GetValue(item);
                         numProps++;
                     }
                     if (!ignore.Contains(props[i].Name) && props[i].Name == "CustomFields")
@@ -128,9 +128,9 @@ namespace HelperClasses
 
                             string customfieldName = customfieldNames.ElementAt(x);
 
-                            if (customfieldName == (item.CustomFields.ElementAtOrDefault(index).Name))
+                            if (item.CustomFields.Where(y => y.Name.Contains(customfieldName)).FirstOrDefault() != null) 
                             {
-                                values[numProps] = FormatHelper.Format(customfieldName ,item.CustomFields.ElementAt(index).Values.First());
+                                values[numProps] = FormatHelper.Format(customfieldName, item.CustomFields.Where(z => z.Name.Contains(customfieldName)).FirstOrDefault().Values.FirstOrDefault());
                                 index++;
                             }
                             else

@@ -13,6 +13,14 @@ namespace JiraQuery.Domain
 
         public static string Format(string headerName, string value)
         {
+            if (value.Length > 100)
+            {
+                if (!needsFormatting.Contains(headerName))
+                {
+                    needsFormatting.Add(headerName);
+                    Log.LogMessage(headerName);
+                }
+            }
             switch (headerName)
             {
                 case "Blocked by":
@@ -21,79 +29,72 @@ namespace JiraQuery.Domain
                     return Epic_Status(value);
                 case "Bug Traced To":
                     return Bug_Traced_To(value);
-                case "Relates To":
-                    return Relates_To(value);
-                case "Traces to":
-                    return Traces_to(value);
-                case "Traced by":
-                    return Traced_by(value);
-                case "Test Case Link":
-                    return Test_Case_Link(value);
                 default:
-                    if (value.Substring(0, 1) == "[" || value.Substring(0, 1) == "{")
-                    {
-                        if (!needsFormatting.Contains(headerName))
-                        {
-                            needsFormatting.Add(headerName);
-                            Log.LogMessage(string.Format("[WARNING] Field {0} may be unformatted...",headerName));
-                        }
-                    }
                     return value;
             }
         }
 
-        static string Blocked_by(string value) //formats the relevant column
+        static string Blocked_by(string value) //formats the blocked by column
         {
-            return JsonSelection(value, "key"); //returns Json value from selected id
+            return GetStringSelection(value, "\"key\": \"", 8, true);
         }
 
         static string Epic_Status(string value)
         {
-            return JsonSelection(value, "value");
+            return GetStringSelection(value, "\"value\": \"", 10);
         }
 
         static string Bug_Traced_To(string value)
         {
-            return JsonSelection(value, "key");
+            //return GetStringSelection(value, "\"key\": \"", 8, true);
+            string result = "";
+            var jo = JObject.Parse(value);
+            var data = (JObject)jo["key"];
+            foreach (var item in data)
+            {
+                result = result + item.Value + ", ";
+            }
+            return result;
         }
 
         static string Relates_To(string value)
         {
-            return JsonSelection(value, "key");
+            return "";
         }
 
         static string Traces_to(string value)
         {
-            return JsonSelection(value, "key");
+            return "";
         }
 
-        static string Traced_by(string value)
+        static string Blocked_Reason_Information(string value)
         {
-            return JsonSelection(value, "key");
+            return "";
         }
 
-        static string Test_Case_Link(string value)
+        static string I_want(string value)
         {
-            return JsonSelection(value, "key");
+            return "";
         }
 
-        public static string JsonSelection(string source, string id) //selects value from json
+        static string Defect_Retest_Results(string value)
         {
-            string result = "";
-            try
-            {
-                JArray jo = (JArray)JsonConvert.DeserializeObject(source);
-                foreach (JObject Object in jo)
-                {
-                    result = result + Object.Property(id).Value + ", ";
-                }
-            }
-            catch
-            {
-                JObject jo = (JObject)JsonConvert.DeserializeObject(source);
-                result = result + jo.Property(id).Value + ", ";
-            }
-            return result;
+            return "";
+        }
+
+        static string As(string value)
+        {
+            return "";
+        }
+
+        static string Developer_Comments(string value)
+        {
+            return "";
+        }
+
+        static string Historic_Information(string value)
+        {
+            return "";
         }
 
         public static string GetStringSelection(string source, string searchString, int substringOffset ,bool multipleValues = false) //gets indexes of start of specific string inside another string
@@ -123,7 +124,5 @@ namespace JiraQuery.Domain
             }
             return result;
         }
-
-        
     }
 }
