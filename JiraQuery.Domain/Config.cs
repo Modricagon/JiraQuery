@@ -9,7 +9,7 @@ namespace JiraQuery.Domain
         public static string username = "IsaacA";
         public static string password = "ia";
 
-        public static string query = "\"Test Case Link\" is not EMPTY";
+        public static string query = null;
         //public static string query = "project = JEP";
 
         public static List<string> Dates = new List<string>() { "Created", "DueDate", "Updated", "ResolutionDate" };
